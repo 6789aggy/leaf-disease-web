@@ -1,0 +1,300 @@
+import cv2
+import time
+import os
+import pandas as pd
+from datetime import datetime
+from ultralytics import YOLO
+from PIL import Image, ImageDraw, ImageFont
+import numpy as np
+
+# =========================
+# LOAD MODEL
+# =========================
+model = YOLO("best.pt")
+
+# =========================
+# FONT TI?NG VI?T
+# =========================
+font_path = "C:/Windows/Fonts/arial.ttf"
+
+title_font = ImageFont.truetype(font_path, 28)
+text_font = ImageFont.truetype(font_path, 22)
+small_font = ImageFont.truetype(font_path, 18)
+
+# =========================
+# CLASS B?NH
+# =========================
+disease_map = {
+    "Anthracnose": {
+        "vn": "B?nh thán thý",
+        "advice": "C?n x? l? n?m b?nh s?m.",
+        "severity": "CAO"
+    },
+    "Bacterial_Blight": {
+        "vn": "Cháy lá vi khu?n",
+        "advice": "Ki?m tra ð? ?m và x? l? vi khu?n.",
+        "severity": "CAO"
+    },
+    "Deficiency Leaf": {
+        "vn": "Thi?u dinh dý?ng",
+        "advice": "B? sung dinh dý?ng ho?c ki?m tra ný?c.",
+        "severity": "TRUNG B?NH"
+    },
+    "DryLeaf_Lemon": {
+        "vn": "Lá khô",
+        "advice": "Ki?m tra tý?i tiêu.",
+        "severity": "TRUNG B?NH"
+    },
+    "Dry_Leaf-Lychee": {
+        "vn": "Lá khô stress",
+        "advice": "Cây ðang b? stress môi trý?ng.",
+        "severity": "TRUNG B?NH"
+    },
+    "Powdery_Mildew": {
+        "vn": "N?m ph?n tr?ng",
+        "advice": "Gi?m ð? ?m, x? l? n?m.",
+        "severity": "CAO"
+    },
+    "downey_mildew": {
+        "vn": "B?nh sýõng mai",
+        "advice": "X? l? s?m ð? tránh lây lan.",
+        "severity": "CAO"
+    }
+}
+
+# =========================
+# THÝ M?C LÝU
+# =========================
+os.makedirs("captures", exist_ok=True)
+
+csv_file = "history.csv"
+
+if not os.path.exists(csv_file):
+    df = pd.DataFrame(columns=[
+        "time",
+        "disease",
+        "confidence",
+        "severity"
+    ])
+    df.to_csv(csv_file, index=False)
+
+# =========================
+# WEBCAM
+# =========================
+cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    print("Không m? ðý?c webcam")
+    exit()
+
+prev_time = 0
+last_auto_save = 0
+
+# =========================
+# LOOP
+# =========================
+while True:
+    ret, frame = cap.read()
+
+    if not ret:
+        break
+
+    results = model(frame)
+    result = results[0]
+
+    detected = False
+    disease_name = ""
+    confidence = 0
+    advice = ""
+    severity = ""
+
+    if result.boxes is not None and len(result.boxes) > 0:
+        for box in result.boxes:
+            cls_id = int(box.cls[0])
+            conf = float(box.conf[0])
+
+            if conf < 0.5:
+                continue
+
+            class_name = model.names[cls_id]
+
+            # Ch? nh?n class b?nh
+            if class_name not in disease_map:
+                continue
+
+            detected = True
+            disease_name = disease_map[class_name]["vn"]
+            advice = disease_map[class_name]["advice"]
+            severity = disease_map[class_name]["severity"]
+            confidence = conf
+
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+
+            color = (0, 255, 0)
+
+            if severity == "CAO":
+                color = (0, 0, 255)
+            elif severity == "TRUNG B?NH":
+                color = (0, 255, 255)
+
+            cv2.rectangle(
+                frame,
+                (x1, y1),
+                (x2, y2),
+                color,
+                3
+            )
+
+    # FPS
+    curr_time = time.time()
+    fps = 1 / (curr_time - prev_time) if prev_time != 0 else 0
+    prev_time = curr_time
+
+    # Auto save n?u b?nh n?ng
+    if detected and severity == "CAO":
+        if curr_time - last_auto_save > 5:
+            filename = datetime.now().strftime(
+                "captures/auto_%Y%m%d_%H%M%S.jpg"
+            )
+            cv2.imwrite(filename, frame)
+
+            new_row = pd.DataFrame([{
+                "time": datetime.now(),
+                "disease": disease_name,
+                "confidence": round(confidence * 100, 2),
+                "severity": severity
+            }])
+
+            new_row.to_csv(
+                csv_file,
+                mode='a',
+                header=False,
+                index=False
+            )
+
+            last_auto_save = curr_time
+
+    # OpenCV -> PIL
+    pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    draw = ImageDraw.Draw(pil_img)
+
+    # Dashboard n?n
+    draw.rectangle((0, 0, 1280, 180), fill=(15, 15, 15))
+    draw.rectangle((900, 0, 1280, 720), fill=(25, 25, 25))
+
+    # Tiêu ð?
+    draw.text(
+        (20, 15),
+        "CROP CONDITION ANALYSIS SYSTEM",
+        font=title_font,
+        fill=(255, 255, 255)
+    )
+
+    current_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+
+    draw.text(
+        (20, 55),
+        f"Th?i gian: {current_time}",
+        font=small_font,
+        fill=(180, 180, 180)
+    )
+
+    draw.text(
+        (950, 30),
+        f"FPS: {int(fps)}",
+        font=text_font,
+        fill=(0, 255, 255)
+    )
+
+    draw.text(
+        (930, 80),
+        "THÔNG TIN PHÂN TÍCH",
+        font=text_font,
+        fill=(255, 255, 255)
+    )
+
+    if detected:
+        color = (0, 255, 0)
+
+        if severity == "CAO":
+            color = (255, 80, 80)
+        elif severity == "TRUNG B?NH":
+            color = (255, 220, 0)
+
+        draw.text(
+            (20, 100),
+            f"Phát hi?n: {disease_name}",
+            font=text_font,
+            fill=color
+        )
+
+        draw.text(
+            (20, 135),
+            f"Ð? tin c?y: {confidence*100:.1f}%",
+            font=text_font,
+            fill=(255, 255, 0)
+        )
+
+        draw.text(
+            (930, 130),
+            f"M?c ð?: {severity}",
+            font=text_font,
+            fill=color
+        )
+
+        draw.text(
+            (930, 180),
+            "Khuy?n ngh?:",
+            font=text_font,
+            fill=(255, 255, 255)
+        )
+
+        draw.text(
+            (930, 220),
+            advice,
+            font=small_font,
+            fill=(200, 200, 200)
+        )
+
+    else:
+        draw.text(
+            (20, 110),
+            "Không phát hi?n b?nh",
+            font=text_font,
+            fill=(255, 80, 80)
+        )
+
+    draw.text(
+        (930, 650),
+        "S: Ch?p ?nh",
+        font=small_font,
+        fill=(180, 180, 180)
+    )
+
+    draw.text(
+        (930, 680),
+        "Q: Thoát",
+        font=small_font,
+        fill=(180, 180, 180)
+    )
+
+    # PIL -> OpenCV
+    final_frame = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+
+    cv2.imshow("Plant Disease Detection", final_frame)
+
+    key = cv2.waitKey(1) & 0xFF
+
+    # Ch?p ?nh th? công
+    if key == ord('s'):
+        filename = datetime.now().strftime(
+            "captures/manual_%Y%m%d_%H%M%S.jpg"
+        )
+        cv2.imwrite(filename, final_frame)
+        print("Ð? lýu:", filename)
+
+    if key == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()

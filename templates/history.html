@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card bg-dark text-white shadow">
+    <div class="card-body">
+
+        <h2>Lịch sử phát hiện bệnh</h2>
+
+        <table class="table table-dark table-striped mt-4">
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Nguồn</th>
+                    <th>Bệnh</th>
+                    <th>Độ tin cậy</th>
+                    <th>Mức độ</th>
+                    <th>Sức khỏe cây</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for row in records %}
+                <tr>
+                    <td>{{ row.time }}</td>
+                    <td>{{ row.source }}</td>
+                    <td>{{ row.disease }}</td>
+                    <td>{{ row.confidence }}%</td>
+                    <td>{{ row.severity }}</td>
+                    <td>{{ row.health }}%</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+{% endblock %}

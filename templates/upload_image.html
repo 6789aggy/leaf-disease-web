@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card bg-dark text-white shadow">
+    <div class="card-body">
+
+        <h2>Tải ảnh lá cây</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input
+                type="file"
+                name="image"
+                class="form-control mb-3"
+                accept="image/*"
+                required
+            >
+
+            <button class="btn btn-success">
+                Phân tích ảnh
+            </button>
+        </form>
+
+        {% if image_url %}
+        <hr>
+
+        <h4>Kết quả phân tích</h4>
+
+        <img
+            src="{{ image_url }}"
+            class="img-fluid rounded mb-3"
+            style="max-width: 100%; display:block;"
+        >
+
+        <div class="alert alert-info">
+            <h5>Bệnh: {{ result.disease }}</h5>
+            <p>Độ tin cậy: {{ result.confidence }}%</p>
+            <p>Mức độ: {{ result.severity }}</p>
+            <p>Sức khỏe cây: {{ result.health }}%</p>
+            <p>Khuyến nghị: {{ result.advice }}</p>
+        </div>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

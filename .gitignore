@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+venv/
+.env
+
+history.csv
+
+static/uploads/
+static/outputs/
+static/capture/
+
+runs/
+
+*.pt
+
+.idea/
+.vscode/

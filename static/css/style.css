@@ -1,0 +1,65 @@
+body {
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    min-height: 100vh;
+    color: white;
+    font-family: 'Be Vietnam Pro', sans-serif;
+}
+
+.navbar {
+    background: rgba(15, 23, 42, 0.95);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+
+.card {
+    border: none;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+
+.card-header {
+    font-size: 20px;
+    font-weight: 700;
+    background: #111827;
+    border-bottom: 1px solid #374151;
+}
+
+.btn {
+    border-radius: 12px;
+    font-weight: 600;
+}
+
+.camera-feed {
+    width: 100%;
+    max-height: 600px;
+    object-fit: contain;
+}
+
+.stat-card {
+    background: #1e293b;
+    color: white;
+}
+
+.danger-card {
+    background: #991b1b;
+    color: white;
+}
+
+.success-card {
+    background: #065f46;
+    color: white;
+}
+
+img,
+video {
+    border-radius: 16px;
+}
+
+table {
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.alert {
+    border-radius: 14px;
+    font-size: 16px;
+}

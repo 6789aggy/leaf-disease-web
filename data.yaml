@@ -1,0 +1,13 @@
+# train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 13
+names: ['Anthracnose', 'Bacterial_Blight', 'Blackgram', 'Cotton', 'Deficiency Leaf', 'DryLeaf_Lemon', 'Dry_Leaf-Lychee', 'Lemon', 'Lychee', 'Mango', 'Powdery_Mildew', 'Soybean', 'downey_mildew']
+
+roboflow:
+  workspace: mnhs-workspace-fzujg
+  project: leaf-disease-2-5wun8
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/mnhs-workspace-fzujg/leaf-disease-2-5wun8/dataset/1

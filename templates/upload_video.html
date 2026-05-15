@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="card bg-dark text-white shadow">
+    <div class="card-body">
+
+        <h2>Tải video lá cây</h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input
+                type="file"
+                name="video"
+                class="form-control mb-3"
+                accept="video/*"
+                required
+            >
+
+            <button class="btn btn-success">
+                Phân tích video
+            </button>
+        </form>
+
+        {% if output_video %}
+        <hr>
+
+        <h4>Video sau nhận diện</h4>
+
+        <video width="100%" controls>
+            <source src="{{ url_for('static', filename=output_video.replace('static/', '')) }}" type="video/mp4">
+        </video>
+
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}
