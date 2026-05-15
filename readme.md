@@ -264,9 +264,8 @@ Số nhãn bệnh:
 
 # 📬 11. Thông tin sinh viên
 
-**Họ và tên:** [Tên của bạn]  
-**Lớp:** [Lớp của bạn]  
-**Trường:** [Tên trường]  
+**Họ và tên:** Lò Đức Mạnh   
+**Trường:** Dai Nam University
 
 ---
 
