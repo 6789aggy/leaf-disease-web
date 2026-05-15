@@ -270,6 +270,6 @@ Số nhãn bệnh:
 
 ---
 
-# © Bản quyền
+# © License
 
-Developed for academic research and smart agriculture applications.
+© 2026 AIoTLab, Faculty of Information Technology, DaiNam University. All rights reserved.
